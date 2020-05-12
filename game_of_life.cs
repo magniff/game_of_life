@@ -62,7 +62,7 @@ class GOLRunner
         ref Cell[][] cells = ref world.cells;
         ref Cell current_cell = ref world.cells[y][x];
 
-        // Checking 8 corner tiles around with respect to tor topology
+        // Checking 8 corner tiles around with respect to the tor topology
         if (cells[(y + 1) % height][x].isAlive)
         {
             alives++;
@@ -163,10 +163,10 @@ class GOLRunner
     public void add_glider(int x, int y)
     {
         world.cells[y][x + 1].isAlive = true;
+        world.cells[y + 1][x + 2].isAlive = true;
         world.cells[y + 2][x].isAlive = true;
         world.cells[y + 2][x + 1].isAlive = true;
         world.cells[y + 2][x + 2].isAlive = true;
-        world.cells[y + 1][x + 2].isAlive = true;
     }
 
     public string step()
@@ -185,13 +185,12 @@ namespace Program
         static void Main(string[] args)
         {
             var game = new GOLRunner(width:20, height:20);
-            // adding glider
-            game.add_glider(3,3);
+            game.add_glider(0, 0);
             while (true)
             {
                 Console.Clear();
                 Console.Write(game.step());
-                Thread.Sleep(200);
+                Thread.Sleep(100);
             }
         }
     }
