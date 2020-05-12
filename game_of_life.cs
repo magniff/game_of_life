@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using CommandLine;
 
 
 public struct Cell
@@ -160,8 +161,10 @@ class GOLRunner
         return output;
     }
 
-    public void add_glider(int x, int y)
+    public void add_glider(int xx, int yy)
     {
+        int x = xx % this.world.width;
+        int y = yy % this.world.height;
         world.cells[y][x + 1].isAlive = true;
         world.cells[y + 1][x + 2].isAlive = true;
         world.cells[y + 2][x].isAlive = true;
@@ -182,16 +185,41 @@ namespace Program
 {
     class LifeRunner
     {
+        public class Options
+        {
+            [Option('w', "width", Required = true, HelpText = "Width of the GOL universe.")]
+            public int Width { get; set; }
+            [Option('h', "height", Required = true, HelpText = "Height of the GOL universe.")]
+            public int Height { get; set; }
+            [Option('i', "init", Required = true, HelpText = "Number of initially alive cells.")]
+            public int Init { get; set; }
+        }
+
         static void Main(string[] args)
         {
-            var game = new GOLRunner(width:20, height:20);
-            game.add_glider(0, 0);
-            while (true)
-            {
-                Console.Clear();
-                Console.Write(game.step());
-                Thread.Sleep(100);
-            }
+            CommandLine.Parser.Default.ParseArguments<Options>(args)
+                .WithParsed<Options>(
+                    o =>
+                    {
+                        int generation = 0;
+                        var rand = new Random();
+                        var game = new GOLRunner(width: o.Width, height: o.Height);
+                        for (int counter = 0; counter < o.Init; counter++)
+                        {
+                            int x = rand.Next() % game.world.width;
+                            int y = rand.Next() % game.world.height;
+                            game.world.cells[y][x].isAlive = true;
+                        }
+                        while (true)
+                        {
+                            Console.Clear();
+                            Console.Write(game.step());
+                            Console.Write(generation);
+                            generation++;
+                            Thread.Sleep(10);
+                        }
+                    }
+                );
         }
     }
 }
