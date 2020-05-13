@@ -161,17 +161,6 @@ class GOLRunner
         return output;
     }
 
-    public void add_glider(int xx, int yy)
-    {
-        int x = xx % this.world.width;
-        int y = yy % this.world.height;
-        world.cells[y][x + 1].isAlive = true;
-        world.cells[y + 1][x + 2].isAlive = true;
-        world.cells[y + 2][x].isAlive = true;
-        world.cells[y + 2][x + 1].isAlive = true;
-        world.cells[y + 2][x + 2].isAlive = true;
-    }
-
     public string step()
     {
         prepare();
@@ -193,18 +182,19 @@ namespace Program
             public int Height { get; set; }
             [Option('i', "init", Required = true, HelpText = "Number of initially alive cells.")]
             public int Init { get; set; }
+            [Option('s', "step", Required = false, HelpText = "Simulation step length in milliseconds.", Default = 20)]
+            public int Step { get; set; }
         }
-
         static void Main(string[] args)
         {
             CommandLine.Parser.Default.ParseArguments<Options>(args)
                 .WithParsed<Options>(
-                    o =>
+                    parsed =>
                     {
                         int generation = 0;
                         var rand = new Random();
-                        var game = new GOLRunner(width: o.Width, height: o.Height);
-                        for (int counter = 0; counter < o.Init; counter++)
+                        var game = new GOLRunner(width: parsed.Width, height: parsed.Height);
+                        for (int counter = 0; counter < parsed.Init; counter++)
                         {
                             int x = rand.Next() % game.world.width;
                             int y = rand.Next() % game.world.height;
@@ -216,7 +206,7 @@ namespace Program
                             Console.Write(game.step());
                             Console.Write(generation);
                             generation++;
-                            Thread.Sleep(10);
+                            Thread.Sleep(parsed.Step);
                         }
                     }
                 );
